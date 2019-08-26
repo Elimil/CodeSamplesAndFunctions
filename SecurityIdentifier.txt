@@ -1,0 +1,20 @@
+        private static string BuildSecurityIdentifier(object value)
+        {
+            var bytes = (byte[])value;
+            string revision = bytes[0].ToString();
+            string identifierAuthorityValue = "";
+            int subauthcount = int.Parse(bytes[1].ToString());
+            for (int i = 2; i < 8; i++)
+                identifierAuthorityValue += bytes[i].ToString();
+            {
+                identifierAuthorityValue = int.Parse(identifierAuthorityValue).ToString();
+            }
+            List<string> subAuths = new List<string>();
+            for (int i = 0; i < subauthcount; i++)
+            {
+                uint val = BitConverter.ToUInt32(bytes, 8 + 4 * i);
+                subAuths.Add(val.ToString());
+            }
+            var subauthVal = String.Join("-", subAuths);
+            return "S-" + revision+"-"+identifierAuthorityValue+"-"+subauthVal;
+        }
