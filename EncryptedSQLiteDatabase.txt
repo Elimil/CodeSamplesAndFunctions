@@ -1,0 +1,31 @@
+// Simple way of using Sqlite with encrypted database
+//Install-Package Microsoft.Data.Sqlite.Core
+//Install-Package SQLitePCLRaw.bundle_sqlcipher
+using Microsoft.Data.Sqlite;
+
+//Function for Authenticate before Command
+public SqliteCommand AuthDB(SqliteConnection conn)
+        {
+            string dbpasswd = "TopSecretOverHere";
+            SqliteCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT quote($password);";
+            cmd.Parameters.AddWithValue("$password", dbpasswd);
+            var qpasswd = (string)cmd.ExecuteScalar();
+            cmd.CommandText = "PRAGMA key = " + qpasswd;
+            cmd.Parameters.Clear();
+            cmd.ExecuteNonQuery();
+            return cmd;
+        }
+        
+//Usage is then simple as following
+SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder();
+connectionStringBuilder.DataSource = "./App_Data/Database.db"; // This is encrypted database created with DB Browser for SQLite application
+using (SqliteConnection connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+      {
+       connection.Open();
+       SqliteCommand dbCmd = AuthDB(connection);
+       dbCmd.CommandText= "Select * from table";
+       using (SqliteDataReader dataReader=dbCmd.ExecuteReader()){
+       ...
+       }
+      }
