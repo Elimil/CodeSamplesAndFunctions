@@ -10,7 +10,7 @@ public SqliteCommand AuthDB(SqliteConnection conn)
             SqliteCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT quote($password);";
             cmd.Parameters.AddWithValue("$password", dbpasswd);
-            var qpasswd = (string)cmd.ExecuteScalar();
+            string qpasswd = (string)cmd.ExecuteScalar();
             cmd.CommandText = "PRAGMA key = " + qpasswd;
             cmd.Parameters.Clear();
             cmd.ExecuteNonQuery();
